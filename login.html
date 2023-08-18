@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #8FB87B, #B2D5AA);
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-container {
+      background-color: rgba(231, 224, 224, 0.418);
+      width: 300px;
+      height: 450px;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0px 0px 10px rgb(1, 49, 25);
+    }
+
+    .logo {
+      
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+      background-color: #8FB87B;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: white;
+    }
+
+    .img{
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        box-shadow: 0px 0px 10px rgb(1, 49, 25);
+    }
+
+    .login-form {
+      margin-top: 20px;
+      margin-right: 18px;
+      margin-bottom: 20px;
+      color: rgb(6, 71, 15);
+      font-size: 20px;
+      text-transform: uppercase;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-shadow: 0px 0px 10px rgb(1, 49, 25);
+    }
+
+    .login-button {
+      width: 305px;
+      background-color: #183f05;
+      margin-top: 8px;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 20px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .login-button:hover{
+        background-color: #378510;
+        transition: 0.5ms;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo">
+        <img class="img" src="/img/Design sem nome.png" alt="" srcset="">
+    </div>
+  <form class="login-form">
+    <div class="form-group">
+      <label for="username">User</label>
+      <input type="text" id="username" name="username" placeholder="Digite seu usuário">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Digite sua senha">
+    </div>
+    <button class="login-button" type="button">Entrar</button>
+  </form>
+</div>
+
+<script>
+    const loginButton = document.querySelector('.login-button');
+  
+    const users = [
+      { username: 'Alisson', password: 'Sst@1706' },
+      { username: 'Regeildo', password: 'Sst@2023' },
+      { username: 'Jamilly', password: 'Sst*2023' },
+      { username: 'Financeiro', password: 'Fin$2023' },
+      { username: 'Seguranca', password: 'Seg_2023' },
+      { username: 'Ambiental', password: 'Amb_2023' }
+    ];
+  
+    loginButton.addEventListener('click', () => {
+      const usernameInput = document.getElementById('username').value;
+      const passwordInput = document.getElementById('password').value;
+  
+      const user = users.find(u => u.username === usernameInput && u.password === passwordInput);
+  
+      if (user) {
+        // Usuário autenticado, redirecionar para a página de listagem
+        window.location.href = 'listagem.html';
+      } else {
+        alert('Usuário ou senha incorretos. Tente novamente.');
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Empresa</title>
+    <!-- Inclua os links para o Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        .pdf {
+            width: 150px;
+            background-color: green !important;
+            color: white !important;
+            font-size: 13PX !important;
+            font-weight: bold !important;
+
+        }
+        .voltar {
+            width: 150px;
+            background-color: rgb(138, 139, 138) !important;
+            color: white !important;
+            font-size: 13PX !important;
+            font-weight: bold !important;
+
+        }
+
+        
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2>Detalhes da Empresa</h2>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 id="empresaNome"></h3>
+                <p><strong>CNPJ:</strong> <span id="cnpjEmpresa"></span></p>
+                <p><strong>Endereço:</strong> <span id="enderecoEmpresa"></span></p>
+                <p><strong>Telefone 1:</strong> <span id="telefone1Empresa"></span></p>
+                <p><strong>Telefone 2:</strong> <span id="telefone2Empresa"></span></p>
+                <p><strong>Data do Contrato:</strong> <span id="dataContratoEmpresa"></span></p>
+                <h4>Serviços:</h4>
+                <ul id="servicosEmpresa"></ul>
+                <p><strong>Desconto (%):</strong> <span id="descontoEmpresa"></span></p>
+                <p><strong>Valor Total:</strong> <span id="valorTotalEmpresa"></span></p>
+                <button id="printButton" class="btn pdf">PDF</button>
+                <button id="voltarButton" class="btn voltar">Voltar para a Lista</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inclua os links para o Bootstrap JS e jQuery (opcional, mas necessário para algumas funcionalidades do Bootstrap) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- Inclua o script da biblioteca html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const empresaId = urlParams.get('id');
+
+            function carregarDetalhesEmpresa() {
+                $.ajax({
+                    type: 'GET',
+                    url: `http://localhost:3000/empresas/${empresaId}`,
+                    success: function (empresa) {
+                        $('#empresaNome').text(empresa.empresa);
+                        $('#cnpjEmpresa').text(empresa.cnpj);
+                        $('#enderecoEmpresa').text(empresa.endereco);
+                        $('#telefone1Empresa').text(empresa.telefone.tipo1);
+                        $('#telefone2Empresa').text(empresa.telefone.tipo2);
+                        $('#dataContratoEmpresa').text(moment(empresa.dataContrato).format('DD/MM/YYYY'));
+                        $('#servicosEmpresa').empty();
+                        empresa.servicos.forEach(servico => {
+                            $('#servicosEmpresa').append(`<li>${servico.descricao}: R$ ${servico.valor.toFixed(2)}</li>`);
+                        });
+                        $('#descontoEmpresa').text(`${empresa.desconto}%`);
+                        $('#valorTotalEmpresa').text(`R$ ${empresa.valorTotal.toFixed(2)}`);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }
+
+            carregarDetalhesEmpresa();
+
+            $('#printButton').on('click', function () {
+                const content = document.getElementById('contentToPrint');
+
+                const opt = {
+                    margin: 10,
+                    filename: 'detalhes_empresa.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Use a biblioteca html2pdf para gerar o PDF a partir do conteúdo
+                html2pdf().from(content).set(opt).toPdf().outputPdf().then(function (pdf) {
+                    // Crie um objeto Blob e crie um URL para ele
+                    const blob = new Blob([pdf], { type: 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+
+                    // Abra uma nova janela ou guia para o PDF
+                    const pdfWindow = window.open(url, '_blank');
+                    pdfWindow.location.href = url;
+                });
+            });
+
+
+            $('#voltarButton').on('click', function () {
+                window.location.href = 'listagem.html'; // Substitua pelo nome correto da página de listagem
+            });
+        });
+    </script>
+
+</body>
+
+</html>

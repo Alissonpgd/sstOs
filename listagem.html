@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagem de Empresas</title>
+    <link rel="icon" href="./img/Design sem nome.png" type="image/x-icon">
+    <!-- Inclua os links para o Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <!-- <link rel="icon" href="caminho-para-o-seu-favicon.ico" type="image/x-icon"> -->
+    <style>
+        .cadastro {
+            width: 150px;
+            background-color: green !important;
+            color: white !important;
+            font-size: 13PX !important;
+            font-weight: bold !important;
+
+        }
+
+        .find {
+            width: 50px !important;
+        }
+    </style>
+
+
+
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2>Listagem de Empresas</h2>
+
+        <!-- Campo de pesquisa -->
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="searchInput" placeholder="Pesquisar por nome da empresa">
+            <div class="input-group-append">
+                <button class="btn find" id="searchButton" type="button">&#128269;</button>
+            </div>
+        </div>
+
+        <!-- Tabela de listagem de empresas -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Empresa</th>
+                    <th>CNPJ</th>
+                    <th>Telefone</th>
+                    <th>Valor Total</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="empresasTableBody">
+                <!-- Linhas da tabela serão adicionadas aqui dinamicamente -->
+            </tbody>
+        </table>
+
+        <!-- Botão para criar novo cadastro -->
+        <a href="cadastro.html" class="btn cadastro">NOVO CADASTRO</a>
+
+        <!-- Paginação -->
+        <nav aria-label="Páginação">
+            <ul class="pagination" id="pagination">
+                <!-- Itens da paginação serão adicionados aqui dinamicamente -->
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Scripts do jQuery, Popper.js, Bootstrap JS e outras bibliotecas que você precisar -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="http://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const empresasPorPagina = 20; // Define o limite de empresas por página
+            let paginaAtual = 1;
+
+            // Função para renderizar a lista de empresas
+            function renderizarEmpresas(empresas) {
+                const tableBody = $('#empresasTableBody');
+                tableBody.empty();
+
+                empresas.forEach(empresa => {
+                    const row = `
+          <tr>
+            <td>${empresa._id}</td>
+            <td><a href="detalhes.html?id=${empresa._id}">${empresa.empresa}</a></td>
+            <td>${empresa.cnpj}</td>
+            <td><a href="tel:${empresa.telefone.tipo1}">${empresa.telefone.tipo1}</a></td>
+            <td>${empresa.valorTotal.toFixed(2)}</td>
+            <td>
+              <button class="btn btn-sm  editar" data-id="${empresa._id}">&#9998;</button>
+              <button class="btn btn-sm  excluir" data-id="${empresa._id}">&#128465;</button>
+            </td>
+          </tr>
+        `;
+
+                    // Verifica se o nome da empresa corresponde à pesquisa
+                    const nomeEmpresa = $('#searchInput').val().trim();
+                    if (nomeEmpresa === '' || empresa.empresa.toLowerCase().includes(nomeEmpresa.toLowerCase())) {
+                        tableBody.append(row);
+                    }
+                });
+            }
+
+            // Função para buscar empresas por nome
+            function buscarEmpresasPorNome(nome, pagina) {
+                $.ajax({
+                    type: 'GET',
+                    url: `http://localhost:3000/empresas?empresa=${nome}&pagina=${pagina}&limite=${empresasPorPagina}`, // Substitua pela URL correta da sua API e nome do parâmetro
+                    success: function (empresas) {
+                        renderizarEmpresas(empresas);
+                    },
+                    error: function (error) {
+                        console.error(error);
+                    },
+                });
+            }
+
+            // Lidar com o clique no botão de busca
+            $('#searchButton').on('click', function () {
+                const nomeEmpresa = $('#searchInput').val();
+                buscarEmpresasPorNome(nomeEmpresa, paginaAtual);
+            });
+
+            // Ao carregar a página, buscar todas as empresas
+            buscarEmpresasPorNome('', paginaAtual);
+
+            // Lidar com o clique nas páginas da paginação
+            $('#pagination').on('click', '.page-link', function () {
+                const novaPagina = parseInt($(this).data('pagina'));
+                if (novaPagina !== paginaAtual) {
+                    paginaAtual = novaPagina;
+                    const nomeEmpresa = $('#searchInput').val();
+                    buscarEmpresasPorNome(nomeEmpresa, paginaAtual);
+                }
+            });
+            // Lidar com o clique no botão Editar (redirecionar para a página de edição)
+            $('#empresasTableBody').on('click', '.editar', function () {
+                const empresaId = $(this).data('id');
+                window.location.href = `editar.html?id=${empresaId}`; // Substitua pela URL da sua página de edição
+            });
+
+            // Lidar com o clique no botão Excluir
+            $('#empresasTableBody').on('click', '.excluir', function () {
+                const empresaId = $(this).data('id');
+                if (confirm('Deseja realmente excluir esta empresa?')) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: `http://localhost:3000/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+                        success: function () {
+                            const nomeEmpresa = $('#searchInput').val();
+                            buscarEmpresasPorNome(nomeEmpresa, paginaAtual);
+                        },
+                        error: function (error) {
+                            console.error(error);
+                        },
+                    });
+                }
+            });
+
+            // Lidar com o clique no botão Ver (redirecionar para a página de detalhes)
+            $('#empresasTableBody').on('click', '.ver', function () {
+                const empresaId = $(this).data('id');
+                window.location.href = `detalhes.html?id=${empresaId}`; // Substitua pela URL da sua página de detalhes
+            });
+        });
+    </script>
+</body>
+
+</html>

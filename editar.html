@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Empresa</title>
+  <!-- Inclua os links para o Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+        .salvar {
+            width: 150px;
+            margin-bottom: 50px;
+            background-color: green !important;
+            color: white !important;
+            font-size: 18PX !important;
+            font-weight: bold !important;
+        }
+        .salvar:hover{
+            background-color: rgb(77, 122, 77) !important;
+        }
+
+        .add{
+            width: 150px;
+            margin-bottom: 50px;
+            background-color: green !important;
+            color: white !important;
+            font-size: 15PX !important;
+            font-weight: bold !important;
+        }
+  </style>
+
+</head>
+<body>
+
+<div class="container mt-5">
+  <h2>Editar Empresa</h2>
+  <form id="editarForm">
+    <div class="form-group">
+      <label for="empresa">Empresa:</label>
+      <input type="text" class="form-control" id="empresa" name="empresa" required>
+    </div>
+    <div class="form-group">
+      <label for="cnpj">CNPJ:</label>
+      <input type="text" class="form-control" id="cnpj" name="cnpj" required>
+    </div>
+    <div class="form-group">
+      <label for="endereco">Endereço:</label>
+      <input type="text" class="form-control" id="endereco" name="endereco" required>
+    </div>
+    <div class="form-group">
+      <label for="telefone1">Telefone 1:</label>
+      <input type="text" class="form-control" id="telefone1" name="telefone1" required>
+    </div>
+    <div class="form-group">
+      <label for="telefone2">Telefone 2:</label>
+      <input type="text" class="form-control" id="telefone2" name="telefone2">
+    </div>
+    <div class="form-group">
+      <label for="servicos">Serviços:</label>
+      <input type="text" class="form-control" id="servicos" name="servicos" placeholder="Serviço 1">
+      <input type="number" class="form-control mt-2" id="valor" name="valor" placeholder="Valor">
+      <button type="button" class="btn add mt-2" id="adicionarServico">ADD</button>
+      <div id="servicosContainer" class="mt-2"></div>
+    </div>
+    <div class="form-group">
+      <label for="desconto">Desconto (%):</label>
+      <input type="number" class="form-control" id="desconto" name="desconto" min="0" max="100" value="0">
+    </div>
+    <div class="form-group">
+      <label for="valorTotal">Valor Total:</label>
+      <input type="text" class="form-control" id="valorTotal" name="valorTotal" readonly>
+    </div>
+    <button type="submit" class="btn salvar">Salvar</button>
+  </form>
+</div>
+
+<!-- Inclua os links para o Bootstrap JS e jQuery (opcional, mas necessário para algumas funcionalidades do Bootstrap) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const empresaId = urlParams.get('id');
+
+    // Função para preencher o formulário de edição com os dados da empresa
+    function preencherFormulario(empresa) {
+      $('#empresa').val(empresa.empresa);
+      $('#cnpj').val(empresa.cnpj);
+      $('#endereco').val(empresa.endereco);
+      $('#telefone1').val(empresa.telefone.tipo1);
+      $('#telefone2').val(empresa.telefone.tipo2);
+      empresa.servicos.forEach(servico => {
+        $('#servicosContainer').append(`<div>${servico.descricao}: R$ ${servico.valor.toFixed(2)}</div>`);
+      });
+      $('#desconto').val(empresa.desconto);
+      $('#valorTotal').val('R$ ' + empresa.valorTotal.toFixed(2));
+    }
+
+    // Função para atualizar o valor total ao editar os campos
+    function atualizarValorTotal() {
+      let valorTotal = 0;
+      $('.servico').each(function () {
+        const valor = parseFloat($(this).find('.valor-servico').val());
+        if (!isNaN(valor)) {
+          valorTotal += valor;
+        }
+      });
+
+      const desconto = parseFloat($('#desconto').val());
+      if (!isNaN(desconto)) {
+        const descontoValor = (desconto / 100) * valorTotal;
+        valorTotal -= descontoValor;
+      }
+
+      $('#valorTotal').val('R$ ' + valorTotal.toFixed(2));
+    }
+
+    // Função para adicionar um serviço no formulário
+    $('#adicionarServico').click(function () {
+      const servico = $('#servicos').val();
+      const valor = parseFloat($('#valor').val());
+
+      if (servico && !isNaN(valor)) {
+        const servicoHtml = `<div class="servico">${servico}: R$ <input type="number" class="valor-servico" value="${valor}"><button type="button" class="btn btn-sm btn-danger remover-servico">Remover</button></div>`;
+        $('#servicosContainer').append(servicoHtml);
+        $('#servicos').val('');
+        $('#valor').val('');
+        atualizarValorTotal();
+      }
+    });
+
+    // Lidar com a remoção de um serviço
+    $('#servicosContainer').on('click', '.remover-servico', function () {
+      $(this).parent('.servico').remove();
+      atualizarValorTotal();
+    });
+
+    // Lidar com o cálculo do valor total ao editar o desconto
+    $('#desconto').on('input', atualizarValorTotal);
+
+    // Função para atualizar a empresa
+    $('#editarForm').submit(function (event) {
+      event.preventDefault();
+
+      const formData = {
+        empresa: $('#empresa').val(),
+        cnpj: $('#cnpj').val(),
+        endereco: $('#endereco').val(),
+        telefone: {
+          tipo1: $('#telefone1').val(),
+          tipo2: $('#telefone2').val(),
+        },
+        servicos: [],
+        desconto: parseFloat($('#desconto').val()),
+        valorTotal: parseFloat($('#valorTotal').val().substring(3)),
+      };
+
+      $('.servico').each(function () {
+        const servico = $(this).text().split(': R$')[0];
+        const valor = parseFloat($(this).find('.valor-servico').val());
+        if (!isNaN(valor)) {
+          formData.servicos.push({ descricao: servico, valor: valor });
+        }
+      });
+
+      $.ajax({
+        type: 'PUT',
+        url: `http://localhost:3000/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        success: function (data) {
+          alert('Empresa atualizada com sucesso!');
+          window.location.href = 'listagem.html'; // Redirecionar para a página de listagem
+        },
+        error: function (error) {
+          alert('Ocorreu um erro ao atualizar a empresa.');
+          console.error(error);
+        },
+      });
+    });
+
+    // Buscar os dados da empresa a ser editada e preencher o formulário
+    $.ajax({
+      type: 'GET',
+      url: `http://localhost:3000/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+      success: function (empresa) {
+        preencherFormulario(empresa);
+      },
+      error: function (error) {
+        console.error(error);
+      },
+    });
+  });
+</script>
+</body>
+</html>
