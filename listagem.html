@@ -113,7 +113,7 @@
             function buscarEmpresasPorNome(nome, pagina) {
                 $.ajax({
                     type: 'GET',
-                    url: `http://localhost:3000/empresas?empresa=${nome}&pagina=${pagina}&limite=${empresasPorPagina}`, // Substitua pela URL correta da sua API e nome do parâmetro
+                    url: `api-sstos-new.vercel.app/empresas?empresa=${nome}&pagina=${pagina}&limite=${empresasPorPagina}`, // Substitua pela URL correta da sua API e nome do parâmetro
                     success: function (empresas) {
                         renderizarEmpresas(empresas);
                     },
@@ -153,7 +153,7 @@
                 if (confirm('Deseja realmente excluir esta empresa?')) {
                     $.ajax({
                         type: 'DELETE',
-                        url: `http://localhost:3000/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+                        url: `api-sstos-new.vercel.app/empresas/${empresaId}`, // Substitua pela URL correta da sua API
                         success: function () {
                             const nomeEmpresa = $('#searchInput').val();
                             buscarEmpresasPorNome(nomeEmpresa, paginaAtual);
