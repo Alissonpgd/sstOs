@@ -68,7 +68,7 @@
             function carregarDetalhesEmpresa() {
                 $.ajax({
                     type: 'GET',
-                    url: `api-sstos-new.vercel.app/empresas/${empresaId}`,
+                    url: `https://apisstos.vercel.app/empresas/${empresaId}`,
                     success: function (empresa) {
                         $('#empresaNome').text(empresa.empresa);
                         $('#cnpjEmpresa').text(empresa.cnpj);
