@@ -166,7 +166,7 @@
 
       $.ajax({
         type: 'PUT',
-        url: `api-sstos-new.vercel.app/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+        url: `https://apisstos.vercel.app/empresas/${empresaId}`, // Substitua pela URL correta da sua API
         data: JSON.stringify(formData),
         contentType: 'application/json',
         success: function (data) {
@@ -183,7 +183,7 @@
     // Buscar os dados da empresa a ser editada e preencher o formulário
     $.ajax({
       type: 'GET',
-      url: `api-sstos-new.vercel.app/empresas/${empresaId}`, // Substitua pela URL correta da sua API
+      url: `https://apisstos.vercel.app/empresas/${empresaId}`, // Substitua pela URL correta da sua API
       success: function (empresa) {
         preencherFormulario(empresa);
       },
